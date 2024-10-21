@@ -3,84 +3,272 @@
 @section('title', 'Dashboard')
 
 @section('content')
-  <h1 class="h3 mb-4 text-gray-800">Welcome {{ Auth::user()->name }}</h1>
+<h1 class="h3 mb-4 text-gray-800">Welcome {{ Auth::user()->name }}</h1>
 
-  <div class="row">
-
-    <!-- Earnings (Monthly) Card Example -->
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-primary shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                Total Penjualan</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">
-                Rp {{ number_format($totalDiscountSales, 0, ',', '.') }}
-              </div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Earnings (Monthly) Card Example -->
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-info shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tasks
-              </div>
-              <div class="row no-gutters align-items-center">
-                <div class="col-auto">
-                  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
+<div class="row">
+    <!-- Product Chart -->
+    <div class="col-xl-6 col-md-12 mb-4">
+        <div class="card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="productChart"></canvas>
                 </div>
-                <div class="col">
-                  <div class="progress progress-sm mr-2">
-                    <div class="progress-bar bg-info" role="progressbar" style="width: 50%" aria-valuenow="50"
-                      aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                </div>
-              </div>
+                <div class="text-center mt-2">Total Products and Categories</div>
             </div>
-            <div class="col-auto">
-              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
 
-    <!-- Pending Requests Card Example -->
-    <div class="col-xl-3 col-md-6 mb-4">
-      <div class="card border-left-warning shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                Pending Requests</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+    <!-- Discount Chart -->
+    <div class="col-xl-6 col-md-12 mb-4">
+        <div class="card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="discountChart"></canvas>
+                </div>
+                <div class="text-center mt-2">Total Discounts</div>
             </div>
-            <div class="col-auto">
-              <i class="fas fa-comments fa-2x text-gray-300"></i>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
+
+<div class="row">
+    <!-- Laporan Chart -->
+    <div class="col-xl-6 col-md-12 mb-4">
+        <div class="card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="laporanChart"></canvas>
+                </div>
+                <div class="text-center mt-2">Laporan Summary</div>
+            </div>
+        </div>
+    </div>
+    <!-- Laporan Chart -->
+    <div class="col-xl-6 col-md-12 mb-4">
+        <div class="card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="PemasukanChart"></canvas>
+                </div>
+                <div class="text-center mt-2">Pemasukan Summary</div>
+            </div>
+        </div>
+    </div>
+    <!-- Tasks Completion Chart -->
+    <div class="col-xl-12 col-md-12 mb-4">
+        <div class="card shadow h-100 py-2">
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="tasksChart"></canvas>
+                </div>
+                <div class="text-center mt-2">Tasks Completion</div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
-{{-- @push('js')
-  <!-- Page level plugins -->
-  <script src="{{ asset('/') }}dash/vendor/chart.js/Chart.min.js"></script>
+@push('js')
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Page level custom scripts -->
-  <script src="{{ asset('/') }}dash/js/demo/chart-area-demo.js"></script>
-  <script src="{{ asset('/') }}dash/js/demo/chart-pie-demo.js"></script>
-@endpush --}}
+<script>
+// Product and Category Chart
+var ctxProduct = document.getElementById('productChart').getContext('2d');
+var productChart = new Chart(ctxProduct, {
+    type: 'doughnut',
+    data: {
+        labels: ['Products', 'Categories'],
+        datasets: [{
+            data: [{
+                {
+                    $totalProducts
+                }
+            }, {
+                {
+                    $totalCategory
+                }
+            }],
+            backgroundColor: ['#4e73df', '#1cc88a'],
+            hoverBackgroundColor: ['#2e59d9', '#17a673'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+        },
+        legend: {
+            display: true
+        }
+    }
+});
+
+// Discount Chart
+var ctxDiscount = document.getElementById('discountChart').getContext('2d');
+var discountChart = new Chart(ctxDiscount, {
+    type: 'bar',
+    data: {
+        labels: ['Total Discount'],
+        datasets: [{
+            label: 'Discount in IDR',
+            data: [{
+                {
+                    $totalDiscount
+                }
+            }],
+            backgroundColor: '#f6c23e',
+            hoverBackgroundColor: '#f4b619',
+            borderColor: '#f6c23e',
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        },
+        legend: {
+            display: false
+        }
+    }
+});
+
+// Laporan Chart
+var ctxLaporan = document.getElementById('laporanChart').getContext('2d');
+var laporanChart = new Chart(ctxLaporan, {
+    type: 'bar',
+    data: {
+        labels: ['Tunai', 'Pengeluaran'],
+        datasets: [{
+            label: 'Laporan Summary in IDR',
+            data: [{
+                {
+                    $laporanData - > totalTunai
+                }
+            }, {
+                {
+                    $laporanData - > totalPengeluaran
+                }
+            }],
+            backgroundColor: ['#36b9cc', '#1cc88a', '#f6c23e'],
+            hoverBackgroundColor: ['#2c9faf', '#17a673', '#f4b619'],
+            borderColor: ['#36b9cc', '#1cc88a', '#f6c23e'],
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        },
+        legend: {
+            display: true
+        }
+    }
+});
+// Pemasukan Chart
+var ctxPemasukan = document.getElementById('PemasukanChart').getContext('2d');
+var PemasukanChart = new Chart(ctxPemasukan, {
+    type: 'bar',
+    data: {
+        labels: ['Tunai', 'Qr'],
+        datasets: [{
+            label: 'Pemasukan Summary in IDR',
+            data: [{
+                {
+                    $pemasukanData - > totalTunais
+                }
+            }, {
+                {
+                    $pemasukanData - > totalQr
+                }
+            }],
+            backgroundColor: ['#36b9cc', '#1cc88a', '#f6c23e'],
+            hoverBackgroundColor: ['#2c9faf', '#17a673', '#f4b619'],
+            borderColor: ['#36b9cc', '#1cc88a', '#f6c23e'],
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        },
+        legend: {
+            display: true
+        }
+    }
+});
+
+// Tasks Completion Chart
+var ctxTasks = document.getElementById('tasksChart').getContext('2d');
+var tasksChart = new Chart(ctxTasks, {
+    type: 'radialGauge',
+    data: {
+        labels: ['Tasks Completion'],
+        datasets: [{
+            data: [{
+                {
+                    $tasksCompletion
+                }
+            }],
+            backgroundColor: '#36b9cc',
+            hoverBackgroundColor: '#2c9faf',
+            borderColor: '#36b9cc',
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }]
+        },
+        legend: {
+            display: false
+        }
+    }
+});
+</script>
+@endpush
