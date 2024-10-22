@@ -12,12 +12,7 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('admin');
-    }
-
+   
     /**
      * Show the application dashboard.
      *
@@ -25,19 +20,30 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $totalDiscountSales = DB::table('sales')
+        // Fetching existing data
+        $totalProducts = DB::table('products')->count();
+        $totalCategory = DB::table('categories')->count();
+        $totalDiscount = DB::table('sales')
             ->join('products', 'sales.product_id', '=', 'products.id')
             ->where('sales.status', 'Selesai')
             ->sum('products.price_discount');
-
-        $bestSellingProduct = DB::table('sales')
-            ->select('products.product_name', 'categories.category_name', DB::raw('COUNT(sales.product_id) as total_sales'))
-            ->join('products', 'sales.product_id', '=', 'products.id')
-            ->join('categories', 'products.category_id', '=', 'categories.id')
-            ->groupBy('sales.product_id', 'products.product_name', 'categories.category_name')
-            ->orderBy('total_sales', 'DESC')
+        $tasksCompletion = 50; // Example percentage
+    
+        // Fetching laporan data
+        $laporanData = DB::table('laporans')
+            ->select(
+                DB::raw('SUM(laporan_tunai) as totalTunai'),
+                DB::raw('SUM(laporan_pengeluaran) as totalPengeluaran')
+            )
             ->first();
-
-        return view('dashboard.index', compact('totalDiscountSales', 'bestSellingProduct'));
+      $pemasukanData = DB::table('pemasukans')
+            ->select(
+                DB::raw('SUM(tunai) as totalTunais'),
+                DB::raw('SUM(qr) as totalQr')
+            )
+            ->first();
+    
+        return view('dashboard.index', compact('totalProducts', 'totalCategory', 'totalDiscount', 'tasksCompletion', 'laporanData','pemasukanData'));
     }
+    
 }
