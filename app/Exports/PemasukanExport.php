@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Pemasukan;
+use App\Models\Laporan;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -10,31 +10,29 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
-
-class LaporanExport implements FromCollection, WithHeadings, WithEvents, WithTitle, ShouldAutoSize
+class PemasukanExport implements FromCollection, WithHeadings, WithEvents, WithTitle, ShouldAutoSize
 {
+    protected $startDate;
+    protected $endDate;
+
+    public function __construct($startDate = null, $endDate = null)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
     public function collection()
     {
-        return Pemasukan::with('product') // Ensure relationship is loaded
-            ->get()
-            ->map(function ($pemasukan) {
-                return [
-                    'product_name' => $pemasukan->product ? $pemasukan->product->product_name : 'N/A',
-                    'tunai' => $pemasukan->tunai,
-                    'qr' => $pemasukan->qr,
-                ];
-            });
+        return Laporan::all(['laporan_pengeluaran','laporan_tunai']);
     }
 
     public function headings(): array
     {
         return [
-            'Nama Produk',
-            'Pembayaran Tunai',
-            'Pembayaran QR',
+            'laporan_pengeluaran',
+            'laporan_tunai',
         ];
     }
-
+    
     public function title(): string
     {
         return 'Laporan Pengeluaran';
@@ -48,7 +46,7 @@ class LaporanExport implements FromCollection, WithHeadings, WithEvents, WithTit
 
                 // Main Report Title
                 $sheet->mergeCells('A1:C1');
-                $sheet->setCellValue('A1', 'Laporan Pengeluaran');
+                $sheet->setCellValue('A1', 'Laporan Pemasukan');
                 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(18);
                 $sheet->getStyle('A1')->getAlignment()->setHorizontal('center');
 
@@ -65,9 +63,8 @@ class LaporanExport implements FromCollection, WithHeadings, WithEvents, WithTit
                 $drawing->setWorksheet($sheet);
 
                 // Styling for Header Row (Row 2)
-                $sheet->setCellValue('A2', 'Nama Produk');
+                $sheet->setCellValue('A2', 'Pengeluaran');
                 $sheet->setCellValue('B2', 'Pembayaran Tunai');
-                $sheet->setCellValue('C2', 'Pembayaran QR');
 
                 $sheet->getStyle('A2:C2')->getFont()->setBold(true);
                 $sheet->getStyle('A2:C2')->getAlignment()->setHorizontal('center');
@@ -81,9 +78,8 @@ class LaporanExport implements FromCollection, WithHeadings, WithEvents, WithTit
                 $rowIndex = 3; // Start from row 3 (after title and headings)
 
                 foreach ($data as $row) {
-                    $sheet->setCellValue('A' . $rowIndex, $row['product_name']);
-                    $sheet->setCellValue('B' . $rowIndex, $row['tunai']);
-                    $sheet->setCellValue('C' . $rowIndex, $row['qr']);
+                    $sheet->setCellValue('A' . $rowIndex, $row['laporan_pengeluaran']);
+                    $sheet->setCellValue('B' . $rowIndex, $row['laporan_tunai']);
                     $rowIndex++;
                 }
 

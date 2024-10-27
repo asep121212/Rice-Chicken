@@ -10,9 +10,12 @@ use App\Exports\PemasukanExport;
 
 class PemasukanController extends Controller 
 {
-    public function export()
+    public function export(Request $request)
     {
-        return Excel::download(new PemasukanExport, 'pemasukans.xlsx');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+    
+        return Excel::download(new PemasukanExport($startDate, $endDate), 'pemasukans.xlsx');
     }
 
     public function index(Request $request)

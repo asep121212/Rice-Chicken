@@ -45,17 +45,13 @@ class LaporanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'laporan_menu' => 'required|string',
             'laporan_tunai' => 'required|numeric',
-            'laporan_qr' => 'required|numeric',
-            'laporan_pengeluaran' => 'required|numeric',
+            'laporan_pengeluaran' => 'required|string',
 
         ]);
 
         Laporan::create([
-            'laporan_menu' => $request->laporan_menu,
             'laporan_tunai' => $request->laporan_tunai,
-            'laporan_qr' => $request->laporan_qr,
             'laporan_pengeluaran' => $request->laporan_pengeluaran,
         ]);
 
@@ -70,16 +66,12 @@ class LaporanController extends Controller
     public function update(Request $request, Laporan $laporan)
     {
         $request->validate([
-            'laporan_menu' => 'required|string',
             'laporan_tunai' => 'required|numeric',
-            'laporan_qr' => 'required|numeric',
-            'laporan_pengeluaran' => 'required|numeric',
+            'laporan_pengeluaran' => 'required|string',
          ]);
 
         $laporan->update([
-            'laporan_menu' => $request->laporan_menu,
             'laporan_tunai' => $request->laporan_tunai,
-            'laporan_qr' => $request->laporan_qr,
             'laporan_pengeluaran' => $request->laporan_pengeluaran,
         ]);
 
